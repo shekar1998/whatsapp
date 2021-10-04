@@ -1,0 +1,24 @@
+type User @model {
+  id: ID!
+  name: String!
+  imageUri: String
+  status: String
+  profilename: String
+  CharRoomUser: [CharRoomUser] @connection(keyName: "byUser", fields: ["id"])
+}
+
+type CharRoomUser
+  @model
+  @key(name: "byUser", fields: ["userId", "charRoomId"])
+  @key(name: "byChatRoom", fields: ["charRoomId", "userId"]) {
+  id: ID!
+  userId: ID!
+  charRoomId: ID!
+  user: User @connection(fields: ["userId"])
+  ChatRoom: ChatRoom @connection(fields: ["charRoomId"])
+}
+
+type ChatRoom @model {
+  id: ID!
+  CharRoomUsers: [CharRoomUser] @connection(keyName: "byChatRoom", fields: ["id"])
+}

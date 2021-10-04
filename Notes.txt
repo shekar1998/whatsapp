@@ -1,0 +1,28 @@
+GraphQl
+    Queries is like get request i.e, we recive informations using the quersies
+    Mutations is like post request i.e, we use this to send the informations
+
+
+    ImagePicker.launchCamera(
+      {
+        mediaType: 'photo',
+        maxWidth: 100,
+        maxHeight: 100,
+      },
+     (response) => {
+   console.log('Response = ', response);
+   if (response.didCancel) {
+    console.log('User cancelled image picker');
+    alert('User cancelled image picker');
+   } else if (response.error) {
+    console.log('ImagePicker Error: ', response.error);
+    alert('ImagePicker Error: ' + response.error);
+   } else {
+    let source = response;
+    this.setState({
+     filePath: source,
+    });
+   }
+  }
+    console.log('Image => ', image);
+  };
