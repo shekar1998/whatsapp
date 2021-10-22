@@ -1,0 +1,14 @@
+{
+    "CreateAPIKey": 0,
+    "AppSyncApiName": "whatsapp",
+    "DynamoDBBillingMode": "PAY_PER_REQUEST",
+    "DynamoDBEnableServerSideEncryption": false,
+    "AuthCognitoUserPoolId": {
+        "Fn::GetAtt": [
+            "authwhatsapp6117f709",
+            "Outputs.UserPoolId"
+        ]
+    },
+    "S3DeploymentBucket": "amplify-whatsapp-dev-215324-deployment",
+    "S3DeploymentRootKey": "amplify-appsync-files/8aa57134a4f635d114f1f348994bef6e71a55f4e"
+}
