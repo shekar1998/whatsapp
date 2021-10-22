@@ -42,17 +42,13 @@ interface ChatRoomProp {
 const index = ({ props, navigation }: MainProp) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalImage, setModalImage] = useState();
-  let userInfo:any;
-  let chatIds:any;
+
   const dispatch = useDispatch();
-  console.log(props);
 
   useEffect(() => {
     async function fetch() {
       await SelectedUser(dispatch, props.all);
-     userInfo = await Auth.currentAuthenticatedUser().then((res: any) => res);
-     chatIds = await API.graphql(graphqlOperation(getUser, { id: userInfo.attributes.sub }));
-     console.log(chatIds);
+
     }
     fetch();
   }, []);
@@ -99,10 +95,12 @@ const index = ({ props, navigation }: MainProp) => {
   }
 
   async function handleClick() {
-    navigation.navigate('Message', { image: props.imageUri, name: props.name, all: props.all });
-
+    const userInfo:any = await Auth.currentAuthenticatedUser().then((res: any) => res);
+    const chatIds:any = await API.graphql(graphqlOperation(getUser, { id: userInfo.attributes.sub }));
+    
     const CharRoomUsers: any = chatIds.data.getUser.CharRoomUser;
-
+    
+    
     if (CharRoomUsers.items.length === 0) {
       console.log('Lenght is 0');
       Chat();
@@ -120,7 +118,8 @@ const index = ({ props, navigation }: MainProp) => {
     if (count === false) {
       await Chat();
     }
-    ChatRooms(dispatch, userInfo);
+    ChatRooms(dispatch, CharRoomUsers);
+    navigation.navigate('Message', { image: props.imageUri, name: props.name, all: props.all });
   }
   return (
     <View style={styles.container}>

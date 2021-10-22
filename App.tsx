@@ -10,8 +10,7 @@ enableScreens();
 export default function App() {
   return (
     <Provider store={store}>
-     <MainScreen />
+        <MainScreen />
     </Provider>
   );
 }
-

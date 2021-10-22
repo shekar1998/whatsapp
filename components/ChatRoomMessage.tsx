@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { SelectedUser } from '../hooks/api/ApiCalls';
 
 interface Props {
+  currentUser:string
   Id: string;
   name: string;
   message: string;
@@ -24,7 +25,7 @@ const ChatRoomMessage = (props: Props) => {
   }, []);
 
   const isMe = () => {
-    return props.Id === 'u1';
+    return props.Id === props.currentUser;
   };
   const len = () => {
     return props.message.length <= 25;
@@ -81,13 +82,14 @@ const styles = StyleSheet.create({
   },
   messageBox: {
     maxWidth: '95%',
-    borderRadius: 10,
+    borderRadius: 15,
   },
   name: {
     color: colorScheme.text,
     fontWeight: 'bold',
     fontSize: 14,
     paddingLeft: 10,
+    marginTop:4
   },
   content: {
     fontSize: 12,

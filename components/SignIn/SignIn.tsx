@@ -27,7 +27,6 @@ export default function SignIn(props: any) {
 
   async function onSubmit() {
     const { email, password }: any = values;
-    console.log(email, password);
 
     try {
       const user = await Auth.signIn({

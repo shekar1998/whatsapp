@@ -26,7 +26,7 @@ export default function ChatScreenMenu() {
 
   let loggedInUser: any;
   let userData: any;
-
+  
   useEffect(() => {
     fetch();
   }, []);
@@ -188,7 +188,7 @@ export default function ChatScreenMenu() {
               <View style={styles.infocontainer}>
                 <Text style={styles.name}>You don't have a profile name yet</Text>
                 <Text style={styles.text}>
-                  To Set the profile name{' '}
+                  To Set the profile name
                   <Text style={styles.button} onPress={() => setProfile(!Profile)}>
                     Click here
                   </Text>

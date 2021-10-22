@@ -1,24 +1,58 @@
-import React, { useState } from 'react';
-import { Dimensions, StyleSheet, TextInput, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, StyleSheet, TextInput, View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import Icon3 from 'react-native-vector-icons/Entypo';
 import Colors from '../constants/Colors';
+import { useRoute } from '@react-navigation/native';
+import API, { graphqlOperation } from '@aws-amplify/api';
+import Auth from '@aws-amplify/auth';
+import { createMessage, updateChatRoom } from '../src/graphql/mutations';
 
 interface Props {}
 const colorScheme = Colors.dark;
 const MessageBar = (props: Props) => {
   const [Message, setMessage] = useState('');
-  let IconName: any = Message ? 'send' : 'mic';
+  const [USer, setUSer] = useState();
+  const route: any = useRoute();
+
+  useEffect(() => {
+    async function fetch() {
+      const currentUSer: any = await Auth.currentAuthenticatedUser().then((res: any) => res);
+
+      await setUSer(currentUSer.attributes.sub);
+    }
+    fetch();
+  }, []);
+
+  async function sendMessage() {
+    console.log('entering');
+    if (Message) {
+      const chatIds: any = await API.graphql(
+        graphqlOperation(createMessage, {
+          input: { content: Message, userId: USer, charRoomId: route.params.chatRoomId },
+        })
+      );
+      await API.graphql(
+        graphqlOperation(updateChatRoom, {
+          input: {
+            id: route.params.chatRoomId,
+            lastMessageId: chatIds.data.createMessage.id,
+          },
+        })
+      );
+    }
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.mainContainer}>
         <Icon name='mood' size={27} color='#fff8'></Icon>
+
         <TextInput
           placeholderTextColor={colorScheme.text}
           style={styles.textInput}
-          placeholder={'Message'}
+          placeholder='Message'
           onChangeText={setMessage}
           multiline
         />
@@ -26,7 +60,10 @@ const MessageBar = (props: Props) => {
         {!Message && <Icon2 name='camera' size={27} color='#fff8' style={styles.icon}></Icon2>}
       </View>
       <View style={styles.iconContainer}>
-        <Icon name={IconName} size={27} color='#fff'></Icon>
+        <Text onPress={() => sendMessage()}>
+          {!Message && <Icon name='mic' size={27} color='#fff' />}
+          {Message && <Icon name='send' size={27} color='#fff' />}
+        </Text>
       </View>
     </View>
   );
@@ -58,7 +95,6 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignSelf: 'flex-end',
   },
-  attachment: {},
   textInput: {
     flex: 1,
     marginHorizontal: 20,

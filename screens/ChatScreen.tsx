@@ -1,60 +1,55 @@
 import * as React from 'react';
 import { Dimensions, FlatList, StyleSheet } from 'react-native';
-import { Text, View } from '../components/Themed';
+import { View } from '../components/Themed';
 import Colors from '../constants/Colors';
-import { RootTabScreenProps } from '../types';
-import ChatlistItem from '../components/ChatListItems';
-import ChatRoom from '../data/ChatRooms';
-import { useSelector } from 'react-redux';
-import { ChatRooms } from '../hooks/api/ApiCalls';
+import ChatRoomUSers from '../components/ChatListItems/ChatRoomUSers';
 import FloatingButton from '../components/ChatListItems/FloatingButton';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { API, Auth, graphqlOperation } from 'aws-amplify';
+import { getUser } from '../src/graphql/grapgCustom';
+import { useIsFocused } from '@react-navigation/native';
 
 const colorScheme = Colors.dark;
 
 export default function TabOneScreen({ navigation }: any) {
-  let data: any = ChatRooms;
-  const state: any = useSelector((state: any) => console.log(state));
-  console.log(state);
-  
-   useEffect(() => {
+  const [Data, setData]: any = useState([]);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
     async function fetch() {
       console.log('called first');
-
-      // if (state) {
-      //   data = state;
-      // }
+      const userInfo: any = await Auth.currentAuthenticatedUser().then((res: any) => res);
+      const chatIds: any = await API.graphql(graphqlOperation(getUser, { id: userInfo.attributes.sub }));
+      setData(chatIds.data.getUser.CharRoomUser.items);
+      
     }
     fetch();
-  }, []);
+  }, [isFocused]);
 
   const RenderItem = (data: any) => {
-    let id, name, profilename, imageUri, message, createdAt;
-    if (data === ChatRoom) {
-      id = data.item.id;
-      name = data.item.user[1].name;
-      profilename = null;
-      imageUri = data.item.item.user[1].user.imageUri;
-      message = data.item.lastMessage.content;
-      createdAt = data.item.lastMessage.createdAt;
-    } else {
-      id = data.item.ChatRoom.id;
-      name = data.item.ChatRoom.CharRoomUsers.items[1].user.name;
-      profilename = data.item.ChatRoom.CharRoomUsers.items[1].user.profilename;
-      imageUri = data.item.ChatRoom.CharRoomUsers.items[1].user.imageUri;
-      message = data.item.ChatRoom.CharRoomUsers.items[1].user.status;
-      createdAt = data.item.ChatRoom.CharRoomUsers.items[1].user.createdAt;
-    }
+    let id, name, profilename, imageUri, message, createdAt, all, chatRoomId,lastMessage;
+    all = data.item.ChatRoom.CharRoomUsers.items[1].user;
+    id = data.item.ChatRoom.CharRoomUsers.items[1].user.id;
+    name = data.item.ChatRoom.CharRoomUsers.items[1].user.name;
+    profilename = data.item.ChatRoom.CharRoomUsers.items[1].user.profilename;
+    imageUri = data.item.ChatRoom.CharRoomUsers.items[1].user.imageUri;
+    message = data.item.ChatRoom.CharRoomUsers.items[1].user.status;
+    createdAt = data.item.ChatRoom.CharRoomUsers.items[1].user.createdAt;
+    chatRoomId = data.item.ChatRoom.id;
+    lastMessage = data.item.ChatRoom.lastMessage
     return (
       <>
-        <ChatlistItem
+        <ChatRoomUSers
           props={{
+            all: all,
             id: id,
             name: name,
             profilename: profilename,
             imageUri: imageUri,
             message: message,
             createdAt: createdAt,
+            chatRoomId: chatRoomId,
+            lastMessage: lastMessage
           }}
           navigation={navigation}
         />
@@ -63,7 +58,7 @@ export default function TabOneScreen({ navigation }: any) {
   };
   return (
     <View style={styles.container}>
-      {/* <FlatList keyExtractor={(item: any) => item.id} data={data} renderItem={RenderItem} /> */}
+      <FlatList keyExtractor={(item: any, index: number) => item.id} data={Data} renderItem={RenderItem} />
       <View style={styles.floatingbutton}>
         <FloatingButton />
       </View>

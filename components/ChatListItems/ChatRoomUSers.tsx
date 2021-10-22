@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Dimensions,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import Colors from '../../constants/Colors';
-import messages from '../../data/Chats';
-import { ChatRooms, SelectedUser } from '../../hooks/api/ApiCalls';
+import {SelectedUser } from '../../hooks/api/ApiCalls';
 import { useDispatch } from 'react-redux';
+import moment from 'moment';
 
 const colorScheme = Colors.dark;
 
@@ -28,14 +20,15 @@ interface ChatRoomProp {
   message?: string;
   createdAt?: string;
   userName?: string;
+  chatRoomId?: string;
+  lastMessage?: any;
 }
 
 const index = ({ props, navigation }: MainProp) => {
+  const { all, id, name, profilename, imageUri, message, createdAt, userName, chatRoomId, lastMessage } = props;
   const [modalVisible, setModalVisible] = useState(false);
   const [modalImage, setModalImage] = useState();
   const dispatch = useDispatch();
-  console.log(props);
-
   useEffect(() => {
     async function fetch() {
       await SelectedUser(dispatch, props.all);
@@ -47,7 +40,6 @@ const index = ({ props, navigation }: MainProp) => {
     setModalVisible(true);
   }
 
- 
   return (
     <View style={styles.container}>
       <Modal
@@ -69,29 +61,39 @@ const index = ({ props, navigation }: MainProp) => {
             justifyContent: 'center',
           }}
         >
-          <Image style={styles.ModalImage} source={{ uri: props.imageUri }}></Image>
+          <Image style={styles.ModalImage} source={{ uri: imageUri }}></Image>
         </View>
       </Modal>
       <TouchableOpacity onPress={() => ImageModal()}>
         <View style={styles.imageContainer}>
-          <Image style={styles.image} source={{ uri: props.imageUri }} />
+          <Image style={styles.image} source={{ uri: imageUri }} />
         </View>
       </TouchableOpacity>
 
       <View style={styles.details}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Message', { image: props.imageUri, name: props.name, all: props.all })}
+          onPress={() =>
+            navigation.navigate('Message', {
+              image: imageUri,
+              name: name,
+              all: all,
+              chatRoomId: chatRoomId,
+            })
+          }
         >
-          <Text style={styles.name}>{props.profilename ? props.profilename : props.name}</Text>
+          <Text style={styles.name}>{profilename ? profilename : name}</Text>
 
           <Text style={styles.message} numberOfLines={1}>
-            {!props.message ? 'Hi, I am using whatsapp' : props.message}
+            {!props.lastMessage.content ? '' : props.lastMessage.content}
           </Text>
         </TouchableOpacity>
       </View>
-      {props.createdAt && (
+      {createdAt && (
         <View style={{ justifyContent: 'space-around', height: 60 }}>
-          <Text style={styles.date}>Yesterday</Text>
+          <Text style={styles.date}>
+            {moment(props.lastMessage.createdAt).fromNow()}
+            
+          </Text>
           <View style={styles.numOfMsgContainer}>
             <Text style={styles.numOfMsg}>1</Text>
           </View>

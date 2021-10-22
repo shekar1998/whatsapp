@@ -2,19 +2,17 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import useCachedResources from '../hooks/useCachedResources';
 import useColorScheme from '../hooks/useColorScheme';
 import Navigation from '../navigation';
 
 import { Auth, API, graphqlOperation } from 'aws-amplify';
-import { Provider, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import Amplify from 'aws-amplify';
 import config from '../src/aws-exports';
 import { withAuthenticator } from 'aws-amplify-react-native';
 import { getUser, listUsers } from '../src/graphql/queries';
 import { createUser } from '../src/graphql/mutations';
-import store from '../hooks/redux/redux';
 import { AllUsers, CurrentUser, CurrentUser2 } from '../hooks/api/ApiCalls';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
@@ -39,10 +37,9 @@ function MainScreen() {
           identityPoolId: 'IDENTITY_POOL_ID',
         }),
       });
-      
+
       //get the user from backend with the user ID(sub) from Auth
       if (loggedInUser) {
-
         const userData: any = await API.graphql(graphqlOperation(getUser, { id: loggedInUser.attributes.sub }));
         const AlluserData: any = await API.graphql(graphqlOperation(listUsers, {}));
         CurrentUser2(dispatch, userData);
